@@ -12,7 +12,7 @@ const parseCode = (codeToParse,inputA) => {
     return result;
 };
 
-export {parseCode,input_vector,var_map,order,handleCondition,init};
+export {parseCode,input_vector,var_map,order};
 let var_map = {};//the map of the locals variables
 let line_number = 0;
 let result = [];//the result map
@@ -66,6 +66,7 @@ function iterateFunction(json){
     for (var i in json.params) {
         input_vector[json.params[i].name] = '';
     }
+    nextLine();
     iterateBlock(json.body);
 }
 
@@ -73,13 +74,11 @@ function BlockStatement(json) {
     let i = 0;
     while (i<json.body.length) {
         if (json.body[i].type == 'VariableDeclaration') {
-            nextLine();
             i = createArr(json, false, i);
             iterateVariable(arr);
         }
-        if (json.body[i].type == 'ExpressionStatement') {
-            i = createArr(json, true, i);
-            ExpressionStatement(arr);
+        if (i<json.body.length) {
+            i = func(json,i);
         }
         if (i<json.body.length) {
             iterateBlock(json.body[i]);
@@ -87,6 +86,14 @@ function BlockStatement(json) {
             i++;
         }
     }
+}
+
+function func(json,i){
+    if (json.body[i].type == 'ExpressionStatement') {
+        i = createArr(json, true, i);
+        ExpressionStatement(arr);
+    }
+    return i;
 }
 
 function createArr(json,isExpression,i) {
@@ -122,7 +129,13 @@ function iterateVariable(arr){
         toEnter += '|current';
     result[res] = toEnter;
     res++;
-    order[or] = toKey;
+    order[or] = enterVar(toKey);
+}
+
+function enterVar(toKey){
+    if (order[or] != undefined)
+        toKey = order[or] + '->' + toKey;
+    return toKey;
 }
 
 function enterToMap(array){
@@ -184,6 +197,8 @@ function whileStatement(json) {
     op++;
     let toEnter = toKey + '=>operation: ' + num + '\n' + 'NULL';
     num++;
+    if (input)
+        toEnter += '|current';
     result[res] = toEnter;
     res++;
     order[or] += '->' + toKey;
@@ -192,10 +207,8 @@ function whileStatement(json) {
     let keyCond = handleCondition(data_array[line_number].substring(indS+1,indE));
     nextLine();
     order[or] += '->' + keyCond + '(yes,right)';
-
     iterateBlock(json.body);
     order[or] += '->' + toKey;
-
     or++;
     order[or] = keyCond + '(no)';
 }
@@ -213,12 +226,20 @@ function ExpressionStatement(arr) {
     op++;
     let toEnter = toKey + '=>operation: ' + num + '\n';
     num++;
-    for (var j in array){
+    for (var j in array)
         toEnter += array[j] + '\n';
-    }
+    toEnter = colorExp(toEnter);
     result[res] = toEnter;
     res++;
     order[or] += '->' + toKey;
+}
+
+function colorExp(toEnter){
+    if (input) {
+        if (!(result[res-1].includes('cond')))
+            toEnter += '|current';
+    }
+    return toEnter;
 }
 
 function ReturnStatement() {

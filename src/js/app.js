@@ -12,7 +12,6 @@ $(document).ready(function () {
         variablesMap = variablesValue.split(',');
         if (variablesMap.length>1) input = true;
         let parsedCode = parseCode(codeToParse,input);
-        $('#outputArray').val(JSON.stringify(parsedCode));
         result = parsedCode;
         parseValues();
         parseFunc();
@@ -23,7 +22,8 @@ $(document).ready(function () {
             {'flowstate' : {
                 'past' : { 'fill' : 'white', 'font-size' : 12},
                 'current' : {'fill' : 'green', 'font-color' : 'black', 'font-weight' : 'bold', 'element-color' : 'black'},
-                'future' : { 'fill' : 'white'}, 'request' : { 'fill' : 'white'},
+                'future' : { 'fill' : 'white'},
+                'request' : { 'fill' : 'white'},
             }});  }); });
 
 function parseValues(){
@@ -60,6 +60,8 @@ function colorCond(replaceTest,i){
     if (eval(replaceTest)) {
         i++;
         result[i] += '|current';
+        if (result[i+1].includes('|current'))
+            result[i+1] = result[i+1].substring(0,result[i+1].indexOf('|'));
     }
     else {
         if (result[i+2].includes('|current'))
