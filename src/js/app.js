@@ -45,31 +45,102 @@ function parseFunc(){
             if (result[i].includes('|current'))
                 result[i] = result[i].substring(0,result[i].indexOf('|'));
             let ind = result[i].indexOf(':');
-            let replaceTest = replaceVar(result[i].substring(ind+1,result[i].length),false);
-            replaceTest = replaceVar(replaceTest,true);
             if (input) {
-                i = colorCond(replaceTest,i);
+                let replaceTest = replaceVar(result[i].substring(ind + 1, result[i].length), false);
+                replaceTest = replaceVar(replaceTest, true);
+                colorCond(replaceTest, i);
             }
         }
         i++;
     }
 }
 
-function colorCond(replaceTest,i){
+function colorCond(replaceTest,i) {
     result[i] += '|current';
+    let nameT = result[i].substring(0, result[i].indexOf('=')) + '(yes,right)';
+    let nameF = result[i].substring(0, result[i].indexOf('=')) + '(no)';
+    let orderLine = findLine(nameT);
+    let orderLineNo = findLine(nameF);
     if (eval(replaceTest)) {
-        i++;
-        result[i] += '|current';
-        if (result[i+1].includes('|current'))
-            result[i+1] = result[i+1].substring(0,result[i+1].indexOf('|'));
+        addColor(orderLine,nameT);
+        removeColor(orderLineNo,nameF);
     }
     else {
-        if (result[i+2].includes('|current'))
-            result[i] = result[i].substring(0,result[i].indexOf('|'));
-        else
-            result[i + 2] += '|current';
+        if (orderLineNo != undefined) {
+            addColor(orderLineNo, nameF);
+            removeColor(orderLine, nameT);
+        }
     }
-    return i;
+}
+
+function findLine(name){
+    let orderLine;
+    for (var j = 0; j < order.length; j++) {
+        if (order[j].includes(name)) {
+            orderLine = order[j];
+            break;
+        }
+    }
+    return orderLine;
+}
+
+function addColor(orderLine,name){
+    orderLine = orderLine.substring(orderLine.indexOf(name[name.length-1]) + 3, orderLine.length);
+    while (orderLine.length > 0) {
+        let toPaint = toPaintInit(orderLine);
+        if (toPaint.includes('('))
+            toPaint = toPaint.substring(0, toPaint.indexOf('('));
+        let j = findPlace(toPaint);
+        if (result[j].includes('|current'))
+            result[j] = result[j].substring(0, result[j].indexOf('|'));
+        result[j] += '|current';
+        let idx = orderLine.indexOf('>');
+        if (idx != -1)
+            orderLine = orderLine.substring(idx + 1, orderLine.length);
+        else
+            orderLine = '';
+    }
+}
+
+function toPaintInit(orderLine){
+    let ind =  orderLine.indexOf('-');
+    let toPaint;
+    if (ind != -1)
+        toPaint = orderLine.substring(0, orderLine.indexOf('-'));
+    else
+        toPaint = orderLine;
+    return toPaint;
+}
+
+function removeColor(orderLineNo,name){
+    orderLineNo = orderLineNo.substring(orderLineNo.indexOf(name[name.length-1]) + 3, orderLineNo.length);
+    while (orderLineNo.length > 0) {
+        let toRemoveColor = toPaintInit(orderLineNo);
+        if (toRemoveColor.includes('('))
+            toRemoveColor = toRemoveColor.substring(0, toRemoveColor.indexOf('('));
+        let j = findPlace(toRemoveColor);
+        paint(j);
+        let idx = orderLineNo.indexOf('>');
+        if (idx != -1)
+            orderLineNo = orderLineNo.substring(idx + 1, orderLineNo.length);
+        else
+            orderLineNo = '';
+    }
+}
+
+function paint(j){
+    if (result[j].includes('|current')) {
+        if (!result[j].includes('return'))
+            result[j] = result[j].substring(0, result[j].indexOf('|'));
+    }
+}
+
+function findPlace(toFind){
+    for (var j=0; j<result.length; j++){
+        let name = result[j].substring(0,result[j].indexOf('='));
+        if (name == toFind)
+            return j;
+    }
 }
 
 function makeString(){

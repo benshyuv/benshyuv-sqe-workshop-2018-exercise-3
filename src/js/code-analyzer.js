@@ -247,7 +247,7 @@ function ReturnStatement() {
     let line = data_array[line_number].substring(0,ind);
     let toKey = 'op' + op;
     op++;
-    let toEnter = toKey + '=>operation: ' + num + '\n' + line;
+    let toEnter = toKey + '=>operation: ' + num + '\n' + ' ' + line;
     num++;
     if (input)
         toEnter += '|current';
