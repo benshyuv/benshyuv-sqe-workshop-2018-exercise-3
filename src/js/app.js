@@ -10,6 +10,7 @@ $(document).ready(function () {
         let codeToParse = $('#codePlaceholder').val();
         let variablesValue = $('#variablesArea').val();
         variablesMap = variablesValue.split(',');
+        input = false;
         if (variablesMap.length>1) input = true;
         let parsedCode = parseCode(codeToParse,input);
         result = parsedCode;
@@ -22,8 +23,7 @@ $(document).ready(function () {
             {'flowstate' : {
                 'past' : { 'fill' : 'white', 'font-size' : 12},
                 'current' : {'fill' : 'green', 'font-color' : 'black', 'font-weight' : 'bold', 'element-color' : 'black'},
-                'future' : { 'fill' : 'white'},
-                'request' : { 'fill' : 'white'},
+                'future' : { 'fill' : 'white'}
             }});  }); });
 
 function parseValues(){
@@ -40,18 +40,26 @@ function parseValues(){
 
 function parseFunc(){
     let i = 0;
+    let before = true;
     while (i<result.length){
+        if (before && input)
+            result[i] += '|current';
         if (result[i].includes('cond')){
-            if (result[i].includes('|current'))
-                result[i] = result[i].substring(0,result[i].indexOf('|'));
-            let ind = result[i].indexOf(':');
-            if (input) {
-                let replaceTest = replaceVar(result[i].substring(ind + 1, result[i].length), false);
-                replaceTest = replaceVar(replaceTest, true);
-                colorCond(replaceTest, i);
-            }
+            before = false;
+            handleCOnd(i);
         }
         i++;
+    }
+}
+
+function handleCOnd(i){
+    if (result[i].includes('|current'))
+        result[i] = result[i].substring(0,result[i].indexOf('|'));
+    let ind = result[i].indexOf(':');
+    if (input) {
+        let replaceTest = replaceVar(result[i].substring(ind + 1, result[i].length), false);
+        replaceTest = replaceVar(replaceTest, true);
+        colorCond(replaceTest, i);
     }
 }
 
@@ -61,15 +69,26 @@ function colorCond(replaceTest,i) {
     let nameF = result[i].substring(0, result[i].indexOf('=')) + '(no)';
     let orderLine = findLine(nameT);
     let orderLineNo = findLine(nameF);
-    if (eval(replaceTest)) {
-        addColor(orderLine,nameT);
-        removeColor(orderLineNo,nameF);
+    if (result[i].includes('cond_w')){
+        if (eval(replaceTest))
+            addColor(orderLine, nameT);
+        if (orderLineNo != undefined)
+            addColor(orderLineNo, nameF);
     }
     else {
-        if (orderLineNo != undefined) {
-            addColor(orderLineNo, nameF);
-            removeColor(orderLine, nameT);
-        }
+        if (orderLineNo != undefined)
+            handleIf(replaceTest,orderLine,orderLineNo,nameT,nameF);
+    }
+}
+
+function handleIf(replaceTest,orderLine,orderLineNo,nameT,nameF){
+    if (eval(replaceTest)) {
+        addColor(orderLine, nameT);
+        removeColor(orderLineNo, nameF);
+    }
+    else {
+        addColor(orderLineNo, nameF);
+        removeColor(orderLine, nameT);
     }
 }
 
@@ -118,20 +137,11 @@ function removeColor(orderLineNo,name){
         let toRemoveColor = toPaintInit(orderLineNo);
         if (toRemoveColor.includes('('))
             toRemoveColor = toRemoveColor.substring(0, toRemoveColor.indexOf('('));
-        let j = findPlace(toRemoveColor);
-        paint(j);
         let idx = orderLineNo.indexOf('>');
         if (idx != -1)
             orderLineNo = orderLineNo.substring(idx + 1, orderLineNo.length);
         else
             orderLineNo = '';
-    }
-}
-
-function paint(j){
-    if (result[j].includes('|current')) {
-        if (!result[j].includes('return'))
-            result[j] = result[j].substring(0, result[j].indexOf('|'));
     }
 }
 

@@ -40,7 +40,7 @@ function testIfIf(){
                 '    \n' +
                 '    return c;\n' +
                 '}\n',true)),
-            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n|current","cond1=>condition: 2\\nb < z","cond2=>condition: 3\\nb < y","op2=>operation: 4\\nc = c + 5\\n","op3=>operation: 5\\n return c|current"]'
+            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n","cond1=>condition: 2\\nb < z","cond2=>condition: 3\\nb < y","op2=>operation: 4\\nc = c + 5\\n","op3=>operation: 5\\n return c|current"]'
         );
     });
 }
@@ -57,7 +57,7 @@ function testEndLet(){
                 '   let c = 0;\n' +
                 '   return z;\n' +
                 '}\n',false)),
-            '["op1=>operation: 1\\na = x + 1\\n","op2=>operation: 2\\nNULL","cond1=>condition: 3\\na < z","op3=>operation: 4\\na++\\n","op4=>operation: 5\\nc = 0\\n","op5=>operation: 6\\n return z"]'
+            '["op1=>operation: 1\\na = x + 1\\n","op2=>operation: 2\\nNULL","cond_w1=>condition: 3\\na < z","op3=>operation: 4\\na++\\n","op4=>operation: 5\\nc = 0\\n","op5=>operation: 6\\n return z"]'
         );
     });
 }
@@ -69,7 +69,7 @@ function testLetExp(){
                 '    let a = x + 1;\n' +
                 '    x = x + y;\n' +
                 '}\n',true)),
-            '["op1=>operation: 1\\na = x + 1\\n|current","op2=>operation: 2\\nx = x + y\\n|current"]'
+            '["op1=>operation: 1\\na = x + 1\\n","op2=>operation: 2\\nx = x + y\\n"]'
         );
     });
 }
@@ -90,7 +90,7 @@ function testExpression(){
                 '   x++;\n' +
                 '   return z;\n' +
                 '}\n',true)),
-            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n|current","op2=>operation: 2\\nNULL|current","cond1=>condition: 3\\na < z","op3=>operation: 4\\nc = a + b\\nz = c * 2\\na++\\n","op4=>operation: 5\\nx++\\n|current","op5=>operation: 6\\n return z|current"]'
+            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n","op2=>operation: 2\\nNULL","cond_w1=>condition: 3\\na < z","op3=>operation: 4\\nc = a + b\\nz = c * 2\\na++\\n","op4=>operation: 5\\nx++\\n","op5=>operation: 6\\n return z|current"]'
         );
     });
 }
@@ -111,7 +111,7 @@ function testIfElse(){
                 '    }\n' + '    \n' +
                 '    return c;\n' +
                 '}\n',true)),
-            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n|current","cond1=>condition: 2\\nb < z","op2=>operation: 3\\nc = c + 5\\n","cond2=>condition: 4\\nb < z * 2","op3=>operation: 5\\nc = c + x + 5\\n","op4=>operation: 6\\nc = c + z + 5\\n|current","op5=>operation: 7\\n return c|current"]'
+            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n","cond1=>condition: 2\\nb < z","op2=>operation: 3\\nc = c + 5\\n","cond2=>condition: 4\\nb < z * 2","op3=>operation: 5\\nc = c + x + 5\\n","op4=>operation: 6\\nc = c + z + 5\\n","op5=>operation: 7\\n return c|current"]'
         );
     });
 }
@@ -132,7 +132,7 @@ function testWhile(){
                 '   \n' +
                 '   return z;\n' +
                 '}\n',false)),
-            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n","op2=>operation: 2\\nNULL","cond1=>condition: 3\\na < z","op3=>operation: 4\\nc = a + b\\nz = c * 2\\na++\\n","op4=>operation: 5\\n return z"]'
+            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n","op2=>operation: 2\\nNULL","cond_w1=>condition: 3\\na < z","op3=>operation: 4\\nc = a + b\\nz = c * 2\\na++\\n","op4=>operation: 5\\n return z"]'
         );
     });
 }
@@ -175,7 +175,7 @@ function testIf(){
                 '    \n' +
                 '    return c;\n' +
                 '}\n',true)),
-            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n|current","cond1=>condition: 2\\nb < z","op2=>operation: 3\\nc = c + 5\\n","cond2=>condition: 4\\nb < z * 2","op3=>operation: 5\\nc = c + x + 5\\n","cond3=>condition: 6\\na < y","op4=>operation: 7\\nc = c + z + 5\\n","op5=>operation: 8\\n return c|current"]'
+            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n","cond1=>condition: 2\\nb < z","op2=>operation: 3\\nc = c + 5\\n","cond2=>condition: 4\\nb < z * 2","op3=>operation: 5\\nc = c + x + 5\\n","cond3=>condition: 6\\na < y","op4=>operation: 7\\nc = c + z + 5\\n","op5=>operation: 8\\n return c|current"]'
         );
     });
 }
@@ -202,7 +202,7 @@ function testEndExpression(){
                 '    a = c;\n' +
                 '    return c;\n' +
                 '}\n',true)),
-            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n|current","cond1=>condition: 2\\nb < z","op2=>operation: 3\\nc = c + 5\\n","cond2=>condition: 4\\nb < z * 2","op3=>operation: 5\\nc = c + x + 5\\n","cond3=>condition: 6\\na < y","op4=>operation: 7\\nc = c + z + 5\\n","op5=>operation: 8\\nc = c + 1\\n|current","op6=>operation: 9\\na = c\\n|current","op7=>operation: 10\\n return c|current"]'
+            '["op1=>operation: 1\\na = x + 1\\nb = a + y\\nc = 0\\n","cond1=>condition: 2\\nb < z","op2=>operation: 3\\nc = c + 5\\n","cond2=>condition: 4\\nb < z * 2","op3=>operation: 5\\nc = c + x + 5\\n","cond3=>condition: 6\\na < y","op4=>operation: 7\\nc = c + z + 5\\n","op5=>operation: 8\\nc = c + 1\\n","op6=>operation: 9\\na = c\\n","op7=>operation: 10\\n return c|current"]'
         );
     });
 }

@@ -118,39 +118,34 @@ function iterateVariable(arr){
         var ind = arr[i].indexOf('t');
         value = arr[i].substring(ind + 2, arr[i].length-1);
         array[i] = value;
-    } enterToMap(array);
+    }
+    enterToMap(array);
     let toKey = 'op' + op;
     op++;
     let toEnter = toKey + '=>operation: ' + num + '\n';
     num++;
     for (var j in array)
         toEnter += array[j] + '\n';
-    if (input)
-        toEnter += '|current';
     result[res] = toEnter;
     res++;
-    order[or] = enterVar(toKey);
+    enterVar(toKey);
 }
 
-function enterVar(toKey){
-    if (order[or] != undefined)
-        toKey = order[or] + '->' + toKey;
-    return toKey;
+function enterVar(toKey) {
+    if (order[or] != undefined) {
+        order[or] += '->' + toKey;
+    }
+    else
+        order[or] = toKey;
 }
 
 function enterToMap(array){
     let name; let value;
     for (var j in array) {
         let ind = array[j].indexOf('=');
-        if (ind != -1) {
-            name = array[j].substring(0, ind - 1);
-            value = array[j].substring(ind + 1, array[j].length);
-        }
-        else {
-            let idx = array[j].indexOf('+');
-            name = array[j].substring(0, idx);
-            value = var_map[name] + ' + 1';
-        }
+        name = array[j].substring(0, ind - 1);
+        value = array[j].substring(ind + 1, array[j].length);
+
         value = replaceVar(value);
         var_map[name] = value;
     }
@@ -159,7 +154,7 @@ function enterToMap(array){
 function ifStatement(json){
     let indS = data_array[line_number].indexOf('(');
     let indE = data_array[line_number].indexOf(')');
-    let toKey = handleCondition(data_array[line_number].substring(indS+1,indE));
+    let toKey = handleCondition(data_array[line_number].substring(indS+1,indE),false);
     nextLine();
     order[or] += '->' + toKey + '(yes,right)';
 
@@ -169,8 +164,12 @@ function ifStatement(json){
         alternate(json,toKey);
 }
 
-function handleCondition(test) {
-    let toKey = 'cond' + cond;
+function handleCondition(test,isWhile) {
+    let toKey = '';
+    if(isWhile)
+        toKey = 'cond_w' + cond;
+    else
+        toKey = 'cond' + cond;
     cond++;
     let toEnter = toKey + '=>condition: ' + num + '\n' + test;
     num++;
@@ -197,14 +196,12 @@ function whileStatement(json) {
     op++;
     let toEnter = toKey + '=>operation: ' + num + '\n' + 'NULL';
     num++;
-    if (input)
-        toEnter += '|current';
     result[res] = toEnter;
     res++;
     order[or] += '->' + toKey;
     let indS = data_array[line_number].indexOf('(');
     let indE = data_array[line_number].indexOf(')');
-    let keyCond = handleCondition(data_array[line_number].substring(indS+1,indE));
+    let keyCond = handleCondition(data_array[line_number].substring(indS+1,indE),true);
     nextLine();
     order[or] += '->' + keyCond + '(yes,right)';
     iterateBlock(json.body);
@@ -221,25 +218,15 @@ function ExpressionStatement(arr) {
         value = arr[i].substring(0,ind);
         array[i] = value;
     }
-    enterToMap(array);
     let toKey = 'op' + op;
     op++;
     let toEnter = toKey + '=>operation: ' + num + '\n';
     num++;
     for (var j in array)
         toEnter += array[j] + '\n';
-    toEnter = colorExp(toEnter);
     result[res] = toEnter;
     res++;
     order[or] += '->' + toKey;
-}
-
-function colorExp(toEnter){
-    if (input) {
-        if (!(result[res-1].includes('cond')))
-            toEnter += '|current';
-    }
-    return toEnter;
 }
 
 function ReturnStatement() {
